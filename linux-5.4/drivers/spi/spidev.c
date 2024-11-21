@@ -27,6 +27,59 @@
 
 #include <linux/uaccess.h>
 
+#define JOHN_WANG_SPI_LCD   1
+#if (JOHN_WANG_SPI_LCD) //wangyaoyang
+/* Read / Write SPI device extra signal*/
+#include <linux/gpio/consumer.h>
+
+#define SPI_DCX_BIT_SIGNAL              0x80000000
+#define SPI_DCX_BIT_GPIO_PIN            0x7fffffff
+#define SPI_IOC_RD_SIGNAL_BUSY          _IOR(SPI_IOC_MAGIC, 6, __u32)
+#define SPI_IOC_WR_SIGNAL_DCX           _IOW(SPI_IOC_MAGIC, 6, __u32)
+#define SPI_GPIO_NO_DCX                 ((unsigned long)-1l)	//wangyaoyang
+#define SPI_GPIO_NO_BUSY		((unsigned long)-1l)	//wangyaoyang
+#define SPI_DEV_MAX_CTRL_PINS           2
+
+static struct gpio_desc* static_ctrl_desc[SPI_DEV_MAX_CTRL_PINS];
+
+static void spidev_init_ctrl_gpio(struct device* dev, u32 index) {
+    if (0 <= index && index < SPI_DEV_MAX_CTRL_PINS) {
+        if (static_ctrl_desc[index] == NULL) {
+            static_ctrl_desc[index] = devm_gpiod_get_index(dev, "ctrl", index, GPIOD_OUT_LOW);
+            if (IS_ERR(static_ctrl_desc[index])) {
+                static_ctrl_desc[index] = NULL;
+                dev_err(dev, "Failed to get GPIO: ctrl[%d]\n", index);
+            } else {
+                dev_err(dev, "Setting GPIO desc for ctrl[%d]\n", index);
+            }
+        }
+    }
+}
+
+static inline u32 spidev_get_pin(const struct spi_device *spi,u32 pin) {
+    u32 signl = 0;
+    u32 index = SPI_DCX_BIT_GPIO_PIN & pin;
+    if (0 <= index && index < SPI_DEV_MAX_CTRL_PINS) {
+        if (!IS_ERR(static_ctrl_desc[index])) {
+            signl = gpiod_get_value(static_ctrl_desc[index]);
+            return signl;
+        }
+    }
+    return (unsigned long)(-1);
+}
+
+static inline void spidev_set_pin(const struct spi_device *spi,u32 pin) {
+    u32 signl = !!(SPI_DCX_BIT_SIGNAL & pin);
+    u32 index = SPI_DCX_BIT_GPIO_PIN & pin;
+
+    if (pin == SPI_GPIO_NO_DCX) return;
+    if (0 <= index && index < SPI_DEV_MAX_CTRL_PINS) {
+        if (!IS_ERR(static_ctrl_desc[index])) {
+            gpiod_set_value_cansleep(static_ctrl_desc[index], signl);
+        } else dev_err(&spi->dev, "Invalid ctrl desc[%d]\n", index);
+    }
+}
+#endif  //JOHN_WANG_SPI_LCD     wangyaoyang
 
 /*
  * This supports access to SPI devices using normal userspace I/O calls.
@@ -465,6 +518,22 @@ spidev_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		}
 		break;
 
+#if (JOHN_WANG_SPI_LCD) /* wangyaoyang */
+	case SPI_IOC_RD_SIGNAL_BUSY:
+		retval = __get_user(tmp, (__u32 __user *)arg);
+		if (retval == 0) {
+			tmp = spidev_get_pin(spi,tmp);
+			retval = __put_user(tmp, (__u32 __user *)arg);
+		}
+		break;
+	case SPI_IOC_WR_SIGNAL_DCX:
+		retval = __get_user(tmp, (__u32 __user *)arg);
+		if (retval == 0) {
+			spidev_set_pin(spi,tmp);
+		}
+		break;
+#endif  /* JOHN_WANG_SPI_LCD    wangyaoyang */
+                
 	default:
 		/* segmented and/or full-duplex I/O request */
 		/* Check message and copy into scratch area */
@@ -777,6 +846,10 @@ static int spidev_probe(struct spi_device *spi)
 	mutex_unlock(&device_list_lock);
 
 	spidev->speed_hz = spi->max_speed_hz;
+#if (JOHN_WANG_SPI_LCD) /* wangyaoyang */
+        spidev_init_ctrl_gpio(&spi->dev, 0);
+        spidev_init_ctrl_gpio(&spi->dev, 1);
+#endif  /* JOHN_WANG_SPI_LCD    wangyaoyang */
 
 	if (status == 0)
 		spi_set_drvdata(spi, spidev);

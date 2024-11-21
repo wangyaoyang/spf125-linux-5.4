@@ -303,7 +303,7 @@
 		nand: qpic-nand@79b0000 {
 			pinctrl-0 = <&qspi_nand_pins>;
 			pinctrl-names = "default";
-			status = "ok";
+			status = "disabled";
 		};
 
 		spi_0: spi@78b5000 { /* BLSP1 QUP0 */
@@ -413,6 +413,7 @@
 		pcm: pcm@0xA3C0000{
 			pinctrl-0 = <&audio_pins>;
 			pinctrl-names = "default";
+                        status = "disabled"
 		};
 
 	};

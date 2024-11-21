@@ -22,7 +22,19 @@
 	compatible = "qcom,ipq5018-ap-mp03.5-c2", "qcom,ipq5018-mp03.5-c2", "qcom,ipq5018";
 	interrupt-parent = <&intc>;
 
+	aliases {
+                spi0 = &spi_0;
+		serial0 = &blsp1_uart1;
+		serial1 = &blsp1_uart2;
+		ethernet0 = "/soc/dp1";
+		ethernet1 = "/soc/dp2";
+	};
+
 	soc {
+		spi_0: spi@78b5000 { /* BLSP1 QUP0 */
+			status = "ok";
+		};
+
                 /* wangyaoyang:
                  * emmc and nand-flash are sharing same GPIO pins
                  * only one of them can be enabled at one time
@@ -35,11 +47,43 @@
 		nand: qpic-nand@79b0000 {
                         status = "ok";
 		};
+
+                spi_gpio: spi-gpio {
+                        compatible = "spi-gpio";
+                        #address-cells = <1>;
+                        #size-cells = <0>;
+
+                        /* GPIO引脚定义 */
+                        mosi-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>; /* 主发从收 */
+                        miso-gpios = <&tlmm 31 GPIO_ACTIVE_HIGH>; /* 主收从发 */
+                        sck-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>; /* 时钟 */
+                        cs-gpios = <&tlmm 33 GPIO_ACTIVE_LOW
+                                    &tlmm 30 GPIO_ACTIVE_LOW
+                                    >; /* 芯片选择 GPIO */
+
+                        /* SPI 参数配置 */
+                        num-chipselects = <2>;
+                        spi-max-frequency = <57600000>; /* 最大时钟频率 */
+                        status = "ok";
+
+                        spidev@0 {
+                                compatible = "qti,spidev";
+                                reg = <0>;
+                                spi-max-frequency = <57600000>;
+                                ctrl-gpios = <&tlmm 29 GPIO_ACTIVE_LOW>, <&tlmm 28 GPIO_ACTIVE_LOW>;
+                        };
+                        spidev@1 {
+                                compatible = "qti,spidev";
+                                reg = <1>;
+                                spi-max-frequency = <57600000>;
+                        };
+                };
+
 	};
 };
 
 /* wangyaoyang:
- * emmc and nand-flash are sharing same GPIO pins
+ * emmc and nand-flash are claiming same GPIO pins
  * only one of them can be enabled at one time
 &sdhc_1 {
 	pinctrl-0 = <&emmc_pins>;

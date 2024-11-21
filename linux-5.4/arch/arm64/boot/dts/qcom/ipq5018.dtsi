@@ -359,16 +359,6 @@
 			status = "disabled";
 		};
 
-		blsp_dma: dma@7884000 {
-			compatible = "qcom,bam-v1.7.0";
-			reg = <0x07884000 0x1d000>;
-			interrupts = <GIC_SPI 238 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&gcc GCC_BLSP1_AHB_CLK>;
-			clock-names = "bam_clk";
-			#dma-cells = <1>;
-			qcom,ee = <0>;
-		};
-
 		spi_0: spi@78b5000 { /* BLSP1 QUP0 */
 			compatible = "qcom,spi-qup-v2.2.1";
 			#address-cells = <1>;
@@ -397,6 +387,16 @@
 			dmas = <&blsp_dma 9>, <&blsp_dma 8>;
 			dma-names = "rx", "tx";
 			status = "disabled";
+		};
+
+		blsp_dma: dma@7884000 {
+			compatible = "qcom,bam-v1.7.0";
+			reg = <0x07884000 0x1d000>;
+			interrupts = <GIC_SPI 238 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&gcc GCC_BLSP1_AHB_CLK>;
+			clock-names = "bam_clk";
+			#dma-cells = <1>;
+			qcom,ee = <0>;
 		};
 
 		qpic_bam: dma@7984000 {
@@ -436,21 +436,6 @@
 				nand-ecc-strength = <4>;
 				nand-ecc-step-size = <512>;
 				nand-bus-width = <8>;
-
-				partition@80000 {
-					label = "rootfs";
-					reg = <0x80000 0x3e00000>;
-				};
-
-				partition@3e80000 {
-					label = "rootfs_1";
-					reg = <0x3e80000 0x3e00000>;
-				};
-
-				partition@0 {
-					label = "0:TRAINING";
-					reg = <0x00 0x80000>;
-				};
 			};
 		};
 
