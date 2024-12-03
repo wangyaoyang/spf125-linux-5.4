@@ -48,22 +48,21 @@
                         status = "ok";
 		};
 
+                /* wangyaoyang : Replace this generic GPIO-SPI driver with Aicom driver
                 spi_gpio: spi-gpio {
                         compatible = "spi-gpio";
                         #address-cells = <1>;
                         #size-cells = <0>;
 
-                        /* GPIO引脚定义 */
-                        mosi-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>; /* 主发从收 */
-                        miso-gpios = <&tlmm 31 GPIO_ACTIVE_HIGH>; /* 主收从发 */
-                        sck-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>; /* 时钟 */
+                        mosi-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>;
+                        miso-gpios = <&tlmm 31 GPIO_ACTIVE_HIGH>;
+                        sck-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
                         cs-gpios = <&tlmm 33 GPIO_ACTIVE_LOW
                                     &tlmm 30 GPIO_ACTIVE_LOW
-                                    >; /* 芯片选择 GPIO */
+                                    >;
 
-                        /* SPI 参数配置 */
                         num-chipselects = <2>;
-                        spi-max-frequency = <57600000>; /* 最大时钟频率 */
+                        spi-max-frequency = <57600000>;
                         status = "ok";
 
                         spidev@0 {
@@ -78,7 +77,17 @@
                                 spi-max-frequency = <57600000>;
                         };
                 };
+                */
 
+                radio_spi: radio-spi {
+                    compatible = "aicom,radio-spi-master";
+                    cs-gpios = <&tlmm 22 GPIO_ACTIVE_LOW>,
+                               <&tlmm 31 GPIO_ACTIVE_LOW>,
+                               <&tlmm 32 GPIO_ACTIVE_LOW>;  /* 三个片选引脚 */
+                    sck-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
+                    mosi-gpios = <&tlmm 34 GPIO_ACTIVE_HIGH>;
+                    miso-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>;
+                };
 	};
 };
 
