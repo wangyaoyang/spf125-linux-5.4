@@ -78,15 +78,15 @@
                         };
                 };
                 */
-
+                /* wangyaoyang : GPIO configuration for Radio-SPI driver */
                 radio_spi: radio-spi {
-                    compatible = "aicom,radio-spi-master";
-                    cs-gpios = <&gpio1 22 GPIO_ACTIVE_LOW>,
-                               <&gpio1 23 GPIO_ACTIVE_LOW>,
+                    compatible = "aicom,radio-spi";
+                    cs-gpios = <&tlmm 22 GPIO_ACTIVE_LOW>,
+                               <&tlmm 31 GPIO_ACTIVE_LOW>,
                                <&tlmm 32 GPIO_ACTIVE_LOW>;  /* 三个片选引脚 */
-                    sck-gpios = <&gpio1 31 GPIO_ACTIVE_HIGH>;
-                    mosi-gpios = <&gpio1 32 GPIO_ACTIVE_HIGH>;
-                    miso-gpios = <&gpio1 33 GPIO_ACTIVE_HIGH>;
+                    sck-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
+                    mosi-gpios = <&tlmm 34 GPIO_ACTIVE_HIGH>;
+                    miso-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>;
 
                     spi-slave1 {
                         compatible = "aicom,spi-slave1";
