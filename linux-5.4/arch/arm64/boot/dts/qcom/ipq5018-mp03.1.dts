@@ -710,9 +710,36 @@
 			bias-pull-down;
 		};
 	};
+
+        /* wangyaoyang */
+	radio_spi_pins: radio_spi_pins {
+		radio_spi_cs {
+			pins = "gpio31", "gpio32", "gpio33";
+                        function = "gpio";
+			drive-strength = <8>;
+			bias-disable;
+		};
+
+		radio_spi_clock {
+			pins = "gpio34";
+                        function = "gpio";
+			drive-strength = <8>;
+			bias-disable;
+		};
+
+		radio_spi_data {
+			pins = "gpio35", "gpio22";
+                        function = "gpio";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
 };
 
 &soc {
+/* wangyaoyang : 2024-12
+ * Remove node 'gpio_keys' to release GPIO38 for other purposes.
+ *
 	gpio_keys {
 		compatible = "gpio-keys";
 		pinctrl-0 = <&button_pins>;
@@ -726,6 +753,7 @@
 			debounce-interval = <60>;
 		};
 	};
+ */
 };
 
 &usb3 {
@@ -903,5 +931,5 @@
 	tgt-mem-mode = <0x0>;
 	pageable-size = <0x800000>;
 #endif
-	status = "ok";
+	status = "disabled";
 };

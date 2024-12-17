@@ -48,69 +48,42 @@
                         status = "ok";
 		};
 
-                /* wangyaoyang : Replace this generic GPIO-SPI driver with Aicom driver
-                spi_gpio: spi-gpio {
-                        compatible = "spi-gpio";
-                        #address-cells = <1>;
-                        #size-cells = <0>;
-
-                        mosi-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>;
-                        miso-gpios = <&tlmm 31 GPIO_ACTIVE_HIGH>;
-                        sck-gpios = <&tlmm 32 GPIO_ACTIVE_HIGH>;
-                        cs-gpios = <&tlmm 33 GPIO_ACTIVE_LOW
-                                    &tlmm 30 GPIO_ACTIVE_LOW
-                                    >;
-
-                        num-chipselects = <2>;
-                        spi-max-frequency = <57600000>;
-                        status = "ok";
-
-                        spidev@0 {
-                                compatible = "qti,spidev";
-                                reg = <0>;
-                                spi-max-frequency = <57600000>;
-                                ctrl-gpios = <&tlmm 29 GPIO_ACTIVE_LOW>, <&tlmm 28 GPIO_ACTIVE_LOW>;
-                        };
-                        spidev@1 {
-                                compatible = "qti,spidev";
-                                reg = <1>;
-                                spi-max-frequency = <57600000>;
-                        };
-                };
-                */
                 /* wangyaoyang : GPIO configuration for Radio-SPI driver */
                 radio_spi: radio-spi {
-                    compatible = "aicom,radio-spi";
-                    cs-gpios = <&tlmm 22 GPIO_ACTIVE_LOW>,
-                               <&tlmm 31 GPIO_ACTIVE_LOW>,
-                               <&tlmm 32 GPIO_ACTIVE_LOW>;  /* 三个片选引脚 */
-                    sck-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
-                    mosi-gpios = <&tlmm 34 GPIO_ACTIVE_HIGH>;
-                    miso-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>;
+                        compatible = "aicom,radio-spi";
+                        pinctrl-names = "default";
+                        pinctrl-0 = <&radio_spi_pins>;
 
-                    spi-slave1 {
-                        compatible = "aicom,spi-slave1";
-                        reg = <0>;  // 从设备ID
-                        spi-max-frequency = <1000000>; // 1MHz
-                        spi-cpol = <0>; // CPOL=0
-                        spi-cpha = <0>; // CPHA=0
-                    };
+                        cs-gpios = <&tlmm 22 GPIO_ACTIVE_LOW>,
+                                   <&tlmm 31 GPIO_ACTIVE_LOW>,
+                                   <&tlmm 32 GPIO_ACTIVE_LOW>;  // 三个片选引脚
+                        sck-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
+                        mosi-gpios = <&tlmm 34 GPIO_ACTIVE_HIGH>;
+                        miso-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>;
 
-                    spi-slave2 {
-                        compatible = "aicom,spi-slave2";
-                        reg = <1>;  // 从设备ID
-                        spi-max-frequency = <5000000>; // 5MHz
-                        spi-cpol = <1>; // CPOL=1
-                        spi-cpha = <1>; // CPHA=1
-                    };
+                        spi-slave1 {
+                                compatible = "aicom,spi-slave1";
+                                reg = <0>;  // 从设备ID
+                                spi-max-frequency = <1000000>; // 1MHz
+                                spi-cpol = <0>; // CPOL=0
+                                spi-cpha = <0>; // CPHA=0
+                        };
 
-                    spi-slave3 {
-                        compatible = "aicom,spi-slave3";
-                        reg = <2>;  // 从设备ID
-                        spi-max-frequency = <2000000>; // 2MHz
-                        spi-cpol = <1>; // CPOL=1
-                        spi-cpha = <0>; // CPHA=0
-                    };
+                        spi-slave2 {
+                                compatible = "aicom,spi-slave2";
+                                reg = <1>;  // 从设备ID
+                                spi-max-frequency = <5000000>; // 5MHz
+                                spi-cpol = <1>; // CPOL=1
+                                spi-cpha = <1>; // CPHA=1
+                        };
+
+                        spi-slave3 {
+                                compatible = "aicom,spi-slave3";
+                                reg = <2>;  // 从设备ID
+                                spi-max-frequency = <2000000>; // 2MHz
+                                spi-cpol = <1>; // CPOL=1
+                                spi-cpha = <0>; // CPHA=0
+                        };
                 };
 	};
 };
@@ -132,6 +105,30 @@
 };
 
 &tlmm {
+        /* wangyaoyang */
+	radio_spi_pins: radio_spi_pins {
+		radio_spi_cs {
+			pins = "gpio22", "gpio31", "gpio32";
+                        function = "gpio";
+			drive-strength = <8>;
+			bias-disable;
+		};
+
+		radio_spi_clock {
+			pins = "gpio33";
+                        function = "gpio";
+			drive-strength = <8>;
+			bias-disable;
+		};
+
+		radio_spi_data {
+			pins = "gpio34", "gpio35";
+                        function = "gpio";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
         /* wangyaoyang:
          * emmc and nand-flash are sharing same GPIO pins
          * only one of them can be enabled at one time

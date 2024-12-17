@@ -54,6 +54,45 @@
 			qcom,phy-mdio-addr = <28>;
 			mdio-bus = <&mdio1>;
 		};
+
+                /* wangyaoyang : GPIO configuration for Radio-SPI driver */
+                radio_spi: radio-spi {
+                        compatible = "aicom,radio-spi";
+                        pinctrl-names = "default";
+                        pinctrl-0 = <&radio_spi_pins>;
+
+                        cs-gpios = <&tlmm 31 GPIO_ACTIVE_HIGH>,
+                                   <&tlmm 32 GPIO_ACTIVE_HIGH>,
+                                   <&tlmm 33 GPIO_ACTIVE_HIGH>;  // 三个片选引脚
+                        sck-gpios = <&tlmm 34 GPIO_ACTIVE_HIGH>;
+                        mosi-gpios = <&tlmm 35 GPIO_ACTIVE_HIGH>;
+                        miso-gpios = <&tlmm 22 GPIO_ACTIVE_HIGH>;
+
+                        spi-slave1 {
+                                compatible = "aicom,spi-slave1";
+                                reg = <0>;  // 从设备ID
+                                spi-max-frequency = <10000000>; // 10MHz
+                                spi-cpol = <0>; // CPOL=0
+                                spi-cpha = <0>; // CPHA=0
+                        };
+
+                        spi-slave2 {
+                                compatible = "aicom,spi-slave2";
+                                reg = <1>;  // 从设备ID
+                                spi-max-frequency = <5000000>; // 5MHz
+                                spi-cpol = <0>; // CPOL=0
+                                spi-cpha = <0>; // CPHA=0
+                        };
+
+                        spi-slave3 {
+                                compatible = "aicom,spi-slave3";
+                                reg = <2>;  // 从设备ID
+                                spi-max-frequency = <2000000>; // 2MHz
+                                spi-cpol = <0>; // CPOL=0
+                                spi-cpha = <0>; // CPHA=0
+                        };
+                };
+
 	};
 };
 
